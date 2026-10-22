@@ -1,71 +1,71 @@
-# todo-plugin README
+# TODO Visualizator
+**Автор** Ильюшин Тимофей Леонидович  
+**Группа** М3102
+## Общее описание
 
-This is the README for your extension "todo-plugin". After writing up a brief description, we recommend including the following sections.
+**TODO Visualizator** — расширение для Visual Studio Code, которое находит комментарии `TODO` и `FIXME` в открытых текстовых документах и показывает их в отдельной Webview-панели.
 
-## Features
+- `TODO` — задачи, которые нужно выполнить.
+- `FIXME` — места в коде, которые нужно исправить.
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+Для каждого найденного комментария отображаются его текст, номер строки и имя файла. Комментарии ищутся в строках, начинающихся с `//`; пробелы и табуляция перед `//` допускаются.
 
-For example if there is an image subfolder under your extension project workspace:
+## Как запустить расширение
 
-\!\[feature X\]\(images/feature-x.png\)
+1. Для установки расширения необходимо выполнить команду:
+   `code --install-extension todo-plugin-0.0.1.vsix`
+2. Открыть палитру команд и выполнить команду `Find todo`.
+3. В открывшейся панели `Output` посмотреть списки `TODO` и `FIXME`.
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+Расширение анализирует документы, открытые в VS Code. Файлы проекта, которые не открыты в редакторе, текущая реализация не сканирует.
 
-## Requirements
+## Описание функций
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+### `get_todo()`
 
-## Extension Settings
+Ищет комментарии `TODO` в открытых текстовых документах VS Code. Возвращает массив объектов с полями:
+- `task_name` — текст комментария;
+- `file_name` — имя файла;
+- `line` — номер строки.
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+Пример вызова:
 
-For example:
+```typescript
+const todo = get_todo();
+```
 
-This extension contributes the following settings:
+### `get_fixme()`
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+Ищет комментарии `FIXME` в открытых текстовых документах VS Code. Возвращает массив объектов с полями:
+- `task_name` — текст комментария;
+- `file_name` — имя файла;
+- `line` — номер строки.
 
-## Known Issues
+Пример вызова:
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+```typescript
+const fixme = get_fixme();
+```
 
-## Release Notes
+### `getWebviewContent()`
 
-Users appreciate release notes as you update your extension.
+Подготавливает начальную HTML-разметку для Webview-панели. Возвращает строку с началом HTML-документа, заголовком `Output`, размера шрифта и открывающим тегом `body`.
 
-### 1.0.0
+Пример вызова:
 
-Initial release of ...
+```typescript
+panel.webview.html = getWebviewContent();
+```
 
-### 1.0.1
+### `activate(context)`
 
-Fixed issue #.
+Активирует расширение и регистрирует команду `todo-plugin.find_todo`. При запуске команды вызывает `get_todo()` и `get_fixme()`, создаёт Webview-панель с заголовком `Output` и добавляет в неё списки найденных комментариев. Параметр `context` — контекст расширения VS Code.
 
-### 1.1.0
+Пример: VS Code вызывает `activate(context)` при активации расширения. Пользователь запускает команду `todo-plugin.find_todo` через палитру команд.
 
-Added features X, Y, and Z.
+## История изменений
 
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+| Коммит | Изменения |
+|---|---|
+| 61e40a3 | Добавлены поиск комментариев `TODO` и `FIXME` |
+| 23dc753 | Добавлено отображение результатов в WebView |
