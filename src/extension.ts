@@ -127,6 +127,25 @@ function get_todo() {
 	}
 	return todo_arrary;
 }
+
+// Подготавливает начальную HTML-разметку для Webview-панели.
+// Возвращает строку с началом HTML-документа, метаданными страницы и открывающим тегом body.
+// Пример вызова: panel.webview.html = getWebviewContent();
+function getWebviewContent() {
+  	return `<!DOCTYPE html>
+			<html lang="en">
+			<head>
+    		<meta charset="UTF-8">
+    		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<style>body {
+				font-size: 24px;
+    		}</style>
+
+   			<title>Output</title>
+			</head>
+			<body>`;
+}
+
 // Активирует расширение и регистрирует команду todo-visualize.helloWorld.
 // При запуске команды ищет комментарии и показывает их в Webview-панели.
 // Пример: VS Code вызывает activate(context) при активации расширения.
@@ -135,6 +154,30 @@ export function activate(context: vscode.ExtensionContext) {
 	const disposable = vscode.commands.registerCommand('todo-plugin.find_todo', () => {
 		let todo = get_todo();
 		let fixme = get_fixme();
+
+		const panel = vscode.window.createWebviewPanel(
+        'Output',
+        'Output',
+        vscode.ViewColumn.One,
+        {}
+		);
+
+		panel.webview.html = getWebviewContent();
+
+		panel.webview.html += "<h3>To do list: </h3> <ol>";
+		for (let i = 0; i < todo.length; i++) {
+			panel.webview.html += "<li>Comment:" + todo[i].task_name + "<br>Line:" + todo[i].line + "<br>File path: " + todo[i].file_name + "</li>";
+		}
+		panel.webview.html += "</ol>";
+
+		panel.webview.html += "<h3>Fix list: </h3><ol>";
+		for (let i = 0; i < fixme.length; i++) {
+			panel.webview.html += "<li>Comment:" + fixme[i].task_name + "<br>Line:" + fixme[i].line + "<br>File path: " + fixme[i].file_name + "</li>";
+		}
+		panel.webview.html += "</ol>";
+
+		panel.webview.html += `</body>
+ 			</html>`;
 
 	});
 	context.subscriptions.push(disposable);
